@@ -1,7 +1,11 @@
 /*!
  * ui-select
  * http://github.com/angular-ui/ui-select
+<<<<<<< HEAD
  * Version: 0.8.3-p1 - 2014-11-13T13:18:52.761Z
+=======
+ * Version: 0.9.1 - 2014-12-03T16:41:44.801Z
+>>>>>>> upstream/master
  * License: MIT
  */
 
@@ -36,6 +40,13 @@
   padding-left: 0;
 }
 
+<<<<<<< HEAD
+=======
+.select2-locked > .select2-search-choice-close{
+  display:none;
+}
+
+>>>>>>> upstream/master
 /* Selectize theme */
 
 /* Helper class to show styles when focus */

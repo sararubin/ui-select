@@ -256,7 +256,7 @@ describe('ui-select tests', function() {
     expect(isDropdownOpened(el2)).toEqual(true);
 
     var el3 = createUiSelect();
-    expect(el3.scope().$select.disabled).toEqual(false);
+    expect(el3.scope().$select.disabled).toBeFalsy();
     clickMatch(el3);
     expect(isDropdownOpened(el3)).toEqual(true);
   });
@@ -762,6 +762,35 @@ describe('ui-select tests', function() {
 
   });
 
+  it('should invoke hover callback', function(){
+
+    var highlighted;
+    scope.onHighlightFn = function ($item) {
+      highlighted = $item;
+    };
+
+    var el = compileTemplate(
+      '<ui-select on-select="onSelectFn($item, $model)" ng-model="selection.selected"> \
+        <ui-select-match placeholder="Pick one...">{{$select.selected.name}}</ui-select-match> \
+        <ui-select-choices on-highlight="onHighlightFn(person)" repeat="person.name as person in people | filter: $select.search"> \
+          <div ng-bind-html="person.name | highlight: $select.search"></div> \
+          <div ng-bind-html="person.email | highlight: $select.search"></div> \
+        </ui-select-choices> \
+      </ui-select>'
+    );
+
+    expect(highlighted).toBeFalsy();
+
+    if (!isDropdownOpened(el)){
+      openDropdown(el);
+    }
+
+    $(el).find('.ui-select-choices-row div:contains("Samantha")').trigger('mouseover');
+    scope.$digest();
+
+    expect(highlighted).toBe(scope.people[5]);
+  })
+
   it('should set $item & $model correctly when invoking callback on select and no single prop. binding', function () {
 
     scope.onSelectFn = function ($item, $model, $label) {
@@ -1049,6 +1078,7 @@ describe('ui-select tests', function() {
             if (attrs.disabled !== undefined) { attrsHtml += ' ng-disabled="' + attrs.disabled + '"'; }
             if (attrs.required !== undefined) { attrsHtml += ' ng-required="' + attrs.required + '"'; }
             if (attrs.tabindex !== undefined) { attrsHtml += ' tabindex="' + attrs.tabindex + '"'; }
+            if (attrs.closeOnSelect !== undefined) { attrsHtml += ' close-on-select="' + attrs.closeOnSelect + '"'; }
         }
 
         return compileTemplate(
@@ -1284,6 +1314,22 @@ describe('ui-select tests', function() {
 
     });
 
+    it('should not close dropdown after selecting if closeOnSelect=false', function() {
+
+        scope.selection.selectedMultiple = [scope.people[5]]; //Samantha
+        var el = createUiSelectMultiple({closeOnSelect: false});
+        var searchInput = el.find('.ui-select-search');
+
+        expect(isDropdownOpened(el)).toEqual(false);
+        triggerKeydown(searchInput, Key.Down)
+        expect(isDropdownOpened(el)).toEqual(true);
+
+        clickItem(el, 'Wladimir');
+
+        expect(isDropdownOpened(el)).toEqual(true);
+
+    });
+
     it('should closes dropdown when pressing ESC key from search input', function() {
 
         scope.selection.selectedMultiple = [scope.people[4], scope.people[5], scope.people[6]]; //Wladimir, Samantha & Nicole
@@ -1508,6 +1554,22 @@ describe('ui-select tests', function() {
       expect(el.find('.ui-select-match-item [uis-transclude-append]:not(.ng-hide)').text())
          .toBe("Wladimir <wladimir@email.com>Samantha <samantha@email.com>Nicole <nicole@email.com>");
 
+    });
+
+    it('should support multiple="multiple" attribute', function() {
+
+      var el = compileTemplate(
+          '<ui-select multiple="multiple" ng-model="selection.selectedMultiple" theme="bootstrap" style="width: 800px;"> \
+              <ui-select-match placeholder="Pick one...">{{$item.name}} &lt;{{$item.email}}&gt;</ui-select-match> \
+              <ui-select-choices repeat="person.email as person in people | filter: $select.search"> \
+                <div ng-bind-html="person.name | highlight: $select.search"></div> \
+                <div ng-bind-html="person.email | highlight: $select.search"></div> \
+              </ui-select-choices> \
+          </ui-select> \
+          '
+      );
+
+      expect(el.scope().$select.multiple).toBe(true);
     });
   });
 
