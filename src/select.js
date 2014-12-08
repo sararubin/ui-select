@@ -615,7 +615,7 @@
               if ( ctrl.taggingTokens.tokens[i] === KEY.MAP[e.keyCode] ) {
                 // make sure there is a new value to push via tagging
                 if ( ctrl.search.length > 0 ) {
-                  ctrl.select(null, true);
+                  ctrl.select(undefined, true);
                   _searchInput.triggerHandler('tagged');
                 }
               }
